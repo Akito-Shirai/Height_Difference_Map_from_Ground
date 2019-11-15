@@ -35,12 +35,13 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_broadcaster.h>
 
-typedef struct
+class cell_t
 {
+	public:
 		double min, max;
 		double diff;
 		double origin_x, origin_y;
-}cell_t;
+};
 
 int main(int argc, char** argv)
 {
@@ -93,9 +94,9 @@ int main(int argc, char** argv)
 	const int x_cell_size_ = floor(fabs(x_max_ - x_min_) / resolution_);
 	const int y_cell_size_ = floor(fabs(y_max_ - y_min_) / resolution_);
 	const int map_cell_size_ = x_cell_size_ * y_cell_size_;
-	ROS_WARN("x_cell_size_ : %d", x_cell_size_);
-	ROS_WARN("y_cell_size_ : %d", y_cell_size_);
-	ROS_WARN("map_cell_size_ : %d", map_cell_size_);
+	ROS_INFO("x_cell_size_ : %d", x_cell_size_);
+	ROS_INFO("y_cell_size_ : %d", y_cell_size_);
+	ROS_INFO("map_cell_size_ : %d", map_cell_size_);
 
 	double x_cell_lead = x_min_;
 	double x_cell_behind = x_min_ + resolution_;
@@ -151,33 +152,28 @@ int main(int argc, char** argv)
 	extract.setIndices (ground);
 	extract.filter (*pc_devide_ground);
 
-//	std::cerr << "Ground cloud after filtering: \n"s;
-//	std::cerr << *pc_devide_ground << "\n"s;
-	ROS_WARN("Ground cloud after filtering : %pcl::PointCloud<pcl::PointXYZ>*", *pc_devide_ground);
-
-	//pcl::PCDWriter writer;
-	//writer.write<pcl::PointXYZ> ("ground.pcd", *pc_devide, false);
+	std::cerr << "Ground cloud after filtering : " << std::endl;
+	std::cerr << *pc_devide_ground << std::endl;
 
 	//Extract non-ground(object) returns
 	extract.setNegative(true); //object
 	extract.filter(*pc_devide_object);
 
-//	std::cerr << "Object cloud after filtering: \n"s;
-//	std::cerr << *pc_devide_object << "\n"s;
-	ROS_WARN("Object cloud after filtering : %pcl::PointCloud<pcl::PointXYZ>*", *pc_devide_object);
+	std::cerr << "Object cloud after filtering : " << std::endl;
+	std::cerr << *pc_devide_object << std::endl;
 
-	//writer.write<pcl::PointXYZ> ("object.pcd", *pc_devide, false);
 
 	for(j=0; j<x_cell_size_; j++)
 	{
+		ROS_INFO("j = %d", j);
 		for(k=0; k<y_cell_size_; k++)
 		{
 			cnt = 0;
 			for(l=0; l<pc_size_; l++)
 			{
-				if(cell[j][k].origin_x <= pc_devide_ground->points[l].x && pc_devide_ground->points[l].x <= cell[j][k].origin_x + resolution_)
+				if(cell[j][k].origin_x <= voxel_pc->points[l].x && voxel_pc->points[l].x <= cell[j][k].origin_x + resolution_)
 				{
-					if(cell[j][k].origin_y <= pc_devide_ground->points[l].y && pc_devide_ground->points[l].y <= cell[j][k].origin_y + resolution_)
+					if(cell[j][k].origin_y <= voxel_pc->points[l].y && voxel_pc->points[l].y <= cell[j][k].origin_y + resolution_)
 					{
 						if(cell[j][k].min > pc_devide_object->points[l].z || cnt == 0)
 							cell[j][k].min = pc_devide_object->points[l].z;
@@ -189,7 +185,7 @@ int main(int argc, char** argv)
 						{
 							cell[j][k].diff = diff_max_;
 						}
-//						else if(cell[j][k].max == 0)
+//						else if(cell[j][k].max < cell[j][k].min)
 //						{
 //							cell[j][k].diff = 0;
 //						}
@@ -199,8 +195,8 @@ int main(int argc, char** argv)
 			}
 		}
 	}
-	ROS_WARN("x_cell_lead : %f, x_cell_behind : %f", x_cell_lead, x_cell_behind);
-	ROS_WARN("y_cell_lead : %f, y_cell_behind : %f", y_cell_lead, y_cell_behind);
+	ROS_INFO("x_cell_lead : %f, x_cell_behind : %f", x_cell_lead, x_cell_behind);
+	ROS_INFO("y_cell_lead : %f, y_cell_behind : %f", y_cell_lead, y_cell_behind);
 
 	cv::Mat pc_img;
 	pc_img = cv::Mat(x_cell_size_, y_cell_size_, CV_8UC3);
