@@ -171,30 +171,33 @@ int main(int argc, char** argv)
 			cnt = 0;
 			for(l=0; l<pc_size_; l++)
 			{
-				if(cell[j][k].origin_x <= voxel_pc->points[l].x && voxel_pc->points[l].x <= cell[j][k].origin_x + resolution_)
+				if(cell[j][k].origin_x <= pc_devide_ground->points[l].x && pc_devide_ground->points[l].x <= cell[j][k].origin_x + resolution_)
 				{
-					if(cell[j][k].origin_y <= voxel_pc->points[l].y && voxel_pc->points[l].y <= cell[j][k].origin_y + resolution_)
+					if(cell[j][k].origin_y <= pc_devide_ground->points[l].y && pc_devide_ground->points[l].y <= cell[j][k].origin_y + resolution_)
 					{
-						if(cell[j][k].min > pc_devide_object->points[l].z || cnt == 0)
-							cell[j][k].min = pc_devide_object->points[l].z;
-						if(cell[j][k].max < pc_devide_object->points[l].z || cnt == 0)
-							cell[j][k].max = pc_devide_object->points[l].z;
-
-						cell[j][k].diff = fabs(cell[j][k].max - cell[j][k].min);
-						if(cell[j][k].diff > diff_max_)
-						{
-							cell[j][k].diff = diff_max_;
-						}
-//						else if(cell[j][k].max < cell[j][k].min)
-//						{
-//							cell[j][k].diff = 0;
-//						}
-						cnt++;
+						if(cell[j][k].min < pc_devide_ground->points[l].z || cnt == 0)
+							cell[j][k].min = pc_devide_ground->points[l].z;
 					}
 				}
+				if(cell[j][k].origin_y <= pc_devide_object->points[l].y && pc_devide_object->points[l].y <= cell[j][k].origin_y + resolution_)
+				{
+					if(cell[j][k].origin_y <= pc_devide_object->points[l].y && pc_devide_object->points[l].y <= cell[j][k].origin_y + resolution_)
+					{
+						if(cell[j][k].max < pc_devide_object->points[l].z || cnt == 0)
+							cell[j][k].max = pc_devide_object->points[l].z;
+					}
+				}
+				
+				cell[j][k].diff = fabs(cell[j][k].max - cell[j][k].min);
+				if(cell[j][k].diff > diff_max_)
+				{
+					cell[j][k].max = diff_max_;
+				}
+				cnt++;
 			}
 		}
 	}
+	
 	ROS_INFO("x_cell_lead : %f, x_cell_behind : %f", x_cell_lead, x_cell_behind);
 	ROS_INFO("y_cell_lead : %f, y_cell_behind : %f", y_cell_lead, y_cell_behind);
 
