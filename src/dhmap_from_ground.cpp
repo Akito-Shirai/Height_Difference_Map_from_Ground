@@ -178,22 +178,23 @@ int main(int argc, char** argv)
 						if(cell[j][k].min < pc_devide_ground->points[l].z || cnt == 0)
 							cell[j][k].min = pc_devide_ground->points[l].z;
 					}
-				}
-				if(cell[j][k].origin_y <= pc_devide_object->points[l].y && pc_devide_object->points[l].y <= cell[j][k].origin_y + resolution_)
-				{
-					if(cell[j][k].origin_y <= pc_devide_object->points[l].y && pc_devide_object->points[l].y <= cell[j][k].origin_y + resolution_)
-					{
-						if(cell[j][k].max < pc_devide_object->points[l].z || cnt == 0)
-							cell[j][k].max = pc_devide_object->points[l].z;
-					}
-				}
 				
-				cell[j][k].diff = fabs(cell[j][k].max - cell[j][k].min);
-				if(cell[j][k].diff > diff_max_)
-				{
-					cell[j][k].max = diff_max_;
+					if(cell[j][k].origin_x <= pc_devide_object->points[l].x && pc_devide_object->points[l].x <= cell[j][k].origin_x + resolution_)
+					{
+						if(cell[j][k].origin_y <= pc_devide_object->points[l].y && pc_devide_object->points[l].y <= cell[j][k].origin_y + resolution_)
+						{
+							if(cell[j][k].max < pc_devide_object->points[l].z || cnt == 0)
+								cell[j][k].max = pc_devide_object->points[l].z;
+						}
+					}
+				
+					cell[j][k].diff = fabs(cell[j][k].max - cell[j][k].min);
+					if(cell[j][k].diff > diff_max_)
+					{
+						cell[j][k].max = diff_max_;
+					}
+					cnt++;
 				}
-				cnt++;
 			}
 		}
 	}
